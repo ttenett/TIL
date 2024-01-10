@@ -29,8 +29,69 @@ html form action 의 method="POST"로 변경후, views.py에서 데이터를 사
  - 코드위치: 마스터파일 > settings > MIDDLEWARE (필터의 역할)
 
 ### CSRF 사이트 간 요청
+```python
+{% csrf_token %} 
+```
+언제 POST를 사용하는게 좋을지 내일(1/11) 수업에서 보기로.
 
+# 데이터베이스(DB)
+SQL로. 복습time : SQL > table, insert_data 파일 참조
 
+## 1. MTV (Model Template View)
+- Model : DB 담당 (!= 데이터베이스라는 뜻 아님 주의)
+- Template: HTML 
+- View: 함수, 중간관리자(Request, Response)
+장고를 쓸 경우 Django ORM(번역기)이 python CODE를 SQL로 변환해서 DB(RDBMS)화 시켜줌
+ORM (Object Relational Mapping): 객체 관계 매핑해줌, 파이썬이라는 객체를 다루듯이 데이터베이스의 SQL을 실행할 수 있음.
+DB(Relational Data BMSystem)
+### <정리>
+1. 파이썬은 SQL 과 DB랑 통신이 원칙적으로 불가능
+2. 때문에 파이썬 코드가 DB를 조작하려면 ORM(Object Relational Mapping)이 필요함
+3. Object(파이썬) <=> RDBMS(DB)
+4. ORM 의 역할을 하는건 많음 대표적으로 파이썬에서는 SQLalchemy 가 있음
+5. 하지만 django 위에서만큼은 굳이 SQLalchemy 같이 다른거 쓸 필요 없이 django에 내장되어있는 django ORM 을 쓰면 됨
 
+세번째 프로젝트 생성
+```bash
+cd ..
+ls
+django-admin startproject model
+mv model 02_MODEL
+cd 02_MODLE (또는 폴더에서 VS코드실행)
+python manage.py startapp hospital
 
+```
+앱 settings.py > INSTALLED_APPS  = 'hospital', 추가
+앱 models.py > 
+- 장고에서는 SQLite3(경량형)을 사용. 우리는 MYSQL 사용함 나중에 갈아끼울 수 있음 참조하기. 
+- SQLite3에서는 Create database 생략, 바로 table 생성
+- table이 클래스 > 클래스 생성해서 ORM > 테이블생성함
+```python
+# 클래스 명 => 테이블 명
+class Patient(models.Model):
+    # 필드명 = 필드 타입
+    name =   models.CharField(max_length=30)
+    age =    models.IntegerField()
+    weight = models.FloatField()
+    height = models.FloatField()
+    mbti =   models.CharField(max_length=4)
+```
+- 테이블명 입력하고 메서드까지 부여하고 서버 실행하면 SQL 파일이 생성됨.
 
+> $ python manage.py makemigrations hospital (앱이름)
+ 
+ : hospital 안에 있는 데이터 모델 스케치를 보고 만들어주세요
+ 
+ 결과: migration > 0001.initial 생성, id라는 필드 자동생성, 그외 입력한 필드 생성됨
+
+> $ python manage.py migrate hospital
+> 
+: hospital 의 클래스를 장고파이썬 세상에서 => 데이터세상으로 이주하겠다.
+
+```
+1. 테이블에 대응하는 모델 클래스 생성
+2. 컬럼에 대응하는 필드 클래스 변수 생성
+3. python manage.py makemigrations <app_name>
+4. python manage.py migrate <app_name>
+```
+> $ python manage.py shell
