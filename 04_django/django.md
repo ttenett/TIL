@@ -4,6 +4,7 @@
 
 >$ python manage.py runserver
 
+24.01.09 - 사용자입력 복습/ DB 생성
 ### bmi 지수
 - 민감정보 (키/몸무게)를 GET 메서드를 사용하게되면 사용자 입력후 URL 주소에 입력값이 다 나타남. 이를 방지하고자 method => GET > POST 를 이용함.
 ```python
@@ -67,6 +68,7 @@ python manage.py startapp hospital
 - SQLite3에서는 Create database 생략, 바로 table 생성
 - table이 클래스 > 클래스 생성해서 ORM > 테이블생성함
 ```python
+앱 > models.py
 # 클래스 명 => 테이블 명
 class Patient(models.Model):
     # 필드명 = 필드 타입
@@ -87,6 +89,7 @@ class Patient(models.Model):
 > $ python manage.py migrate hospital
 > 
 : hospital 의 클래스를 장고파이썬 세상에서 => 데이터세상으로 이주하겠다.
+: dbsql 파일 확인하니 컬럼들이 생성되어있음.
 
 ```
 1. 테이블에 대응하는 모델 클래스 생성
@@ -94,4 +97,42 @@ class Patient(models.Model):
 3. python manage.py makemigrations <app_name>
 4. python manage.py migrate <app_name>
 ```
+코드를 쓸 수 있는곳이 필요, 장고내장기능
+hospital
 > $ python manage.py shell
+:실시간 대화형(연습용 환경), input을 매번 해야함 ex) form hospital.models import Patient , Patient()
+> $ pip install django_extensions 설치
+> 
+: 장고에서 공식으로 만든건 아님. 장고_익스텐션즈 깃허브
+> 앱 settings > Installed_apps에서 'django_extensions' 추가
+ **INSTALLED_APPS**
+ Native Apps(django 내장 app) , 3rd Party Apps, Local Apps 로 이루어짐
+ >python manage.py 치면 쓸수있는 도구들이 나옴.
+ 기본장고에서 제공하는것 shell, 익스텐션 설치후 shell_plus
+ **$ python manage.py shell_plus**
+ : 입력하면 임포트가 자동으로 되어있음.편리함
+shell_plus 사용하면 코드 다 날라감. 메모가 필요. 
+종료는 Ctrl + D
+
+```python
+앱 > models.py
+# 현재의 파일(02_MODEL/hospital/models.py)이
+# 직접 실행($ python models.py)된 경우에만 아래 조건문 들임
+if __name__ == '__main__':
+    print('-------THIS IS MODELS.py------)
+# 위 코드가 없으면 python manage.py runserver 할때마다 print 계속 실행됨.
+# if~ 위의 코드는 어쩔수 없이 계속 실행되는데, if 아래의 코드는 자동실행 안되었으면 좋겠을때 사용!
+>> $ python hospital/modes.py 입력할때(직접실행) 사용됨. runserver 같은 간접실행에서는 사용 X
+```
+### DB table에 할 수 있는것
+데이터를 1. 생성(Create) 2.조회(Read or Retrieve) 3. 수정(Update) 4. 삭제(Delete or Destroy)
+= CRUD Operations
+1, 3, 4는 DB가 바뀜.
+**참조**이후 CRUD 부분은 04-django > 02_MODLE > hospital > models.py 참조
+
+24.01.10
+models.py에서 삭제 후 
+$ python manage.py makemigrations board
+DB 반영은
+$ python manage.py migrate 
+![Create설명]("C:\Users\yeonjeong\TIL\04_django\Create.png")
