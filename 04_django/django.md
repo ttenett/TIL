@@ -136,3 +136,79 @@ $ python manage.py makemigrations board
 DB 반영은
 $ python manage.py migrate 
 ![Create설명]("C:\Users\yeonjeong\TIL\04_django\Create.png")
+
+앱 urls.py에서 path('new(페이지명)/', views.new(페이지명)) 만 만들면 거짓말! 에러남
+앱 views.py에 def 페이지명 만들어줘야함.
+
+- 개별 html 안의 태그
+  
+  ```python
+  new.html
+    {% extends "base.html" %}
+    {% block content %}
+    <h1>New Article</h1>
+    <form action="/board/create/" method="POST">
+    {% csrf_token %}
+    <div>
+        <label for="title">제목: </label>
+        <input type="text" id="title" name='title'>
+    </div>
+
+    <div>
+        <label for="content">내용: </label>
+        <textarea name="content" id="content" cols="30" rows="10"></textarea>
+    </div>
+
+    {{ form }}
+
+    <div>
+        <input type="submit">
+    </div>
+
+    </form>
+
+    {% endblock content %}
+  ```
+
+- extends > 탭 > base
+- block > 탭 > content
+- h1 > 탭 : 제목
+- form > 탭 : 폼 태그
+- div>label+input >탭 : 디비전 안에 라벨, 인풋태그 같이나옴.
+- div 안에 라벨, 인풋 / div 안에 라벨, textarea / div 안에 input = "submit"
+- label for, id 명칭은 통일해주면 됨 > 앱 models.py 에 DB 컬럼명에서 따옴.
+- name: 서버측에서 받을때 뭐라고 받을거냐, 똑같이 통일.
+- 데이터를 어디로 보내냐? form action = "/board/create/", POST 방식으로 보낸다 = csrf > 탭 : 공격에 대한 최소한의 체크포인트, 토큰 추가 
+  - ★ html이라서 주소 앞에 / 붙여야함 꼭! urls.py는 장고라서 앞에 /없어도 됨.
+  
+```python
+board > views.py
+from django.shortcuts import render, redirect
+from .models import Article
+from .forms import ArticleForm
+
+# 생성
+def new(request):
+    return render(request, 'board/new.html')
+
+def create(request):
+    # 넘어온 데이터를 form 에 입력
+    print(request.POST)
+    article = Article()
+    article.title = 'test'
+    article.content = 'testing'
+    article.save()
+```  
+저장결과 : new.html의 폼을 통해서 /board/create/가 views.py의 create 함수를 호출, requets.POST 딕셔너리가 터미널에 찍히고 이어서 article 생성 > title, content 채우고 저장까지 완료. 
+- 그런데, 위의 'test', 'testing'을 쓰는게 아니라 사용자가 게시판에서 사용자입력을 해야함. 아래처럼 바꿔주기
+
+```python
+board > views.py
+
+    article.title = request.POST['title']
+    article.content = request.POST['content']
+```
+지금까지는 우리가 하드타이핑 한 것으로 컨텐츠를 채웠지만, 이제는 사용자가 우리에게 요청으로 보낸 POST 데이터안에 title 키값에 해당하는걸(new.html) 통해서 채우고, textarea에 있는걸 contents에 저장함.
+>> return이 없어 저장 후 화면이 에러는 나지만 DB에는 저장됨
+<< 여기까지 실습2 완>>
+
