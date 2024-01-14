@@ -212,3 +212,97 @@ board > views.py
 >> return이 없어 저장 후 화면이 에러는 나지만 DB에는 저장됨
 << 여기까지 실습2 완>>
 
+Create 는 끝. 이제 R파트 Read.
+접속많이하는 대표적인 게시판. 식물갤을 기준으로 게시판생성 생각해보기.
+1. 전체게시글 목록보기 
+2. 특정 게시글 상세보기
+
+```python
+board > urls.py
+# Read
+    # board/ => 전체 게시글 목록 조회
+    path('', views.index),
+    # board/1/ => 특정(pk) 게시글 상세 조회
+    path('<int:pk>/', views.detail),
+```
+
+urls.py에서 read 관련 path 생성. 
+특정게시글 조회시 숫자를 변수로 받아서 활용하는법: <int:pk> 변수명은 pk로 받도록 하자!여서 위와같은 코드가 됨.
+도메인주소를 생성하는 과정.
+여기에 맞춰서 views.py로 동작하는 함수 입력
+
+```python
+views.py
+# 조회
+def index(request):
+   ★ articles = Article.objects.all()
+    return render(request, 'board/index.html', {
+        'articles': articles,
+        })
+
+
+def detail(request, pk):
+   ★ article = Article.objects.get(pk=pk)
+    return render(request, 'board/detail.html', {
+        'article': article,
+        })
+```
+게시글을 봤을때 return은 어떻게 나와야 할까?
+두가지 경우 모두 html 화면을 받아봐야 함.
+html을 받을때 규칙을 보면, def 다음의 함수 이름과 html 이름이 같음. 통일시켜주는게 편하다!
+> 바로 index.html, board.html 파일을 만든다.
+> detail에서 id=pk 또는 pk=pk 둘다 가능. django tutorial 공식문서 홈페이지에서 pk를 주로 써서 이 방식을 채택함.
+
+![urls.py에변수명입력과정]("C:\Users\yeonjeong\TIL\04_django\urls.py에 변수명 입력과정.png")
+
+index에는 전체 목록이라 변수명 복수형임.
+마지막엔 세번째인자인 context 입력.  
+
+html 파일로 넘어감. extends 탭 > base.html, 
+block 탭 > content 
+게시판 번호와 제목을 꺼내주기위해서 뭘 해야할까? for문
+
+```html
+board > templates > board > index.html
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>All Articles</h1>
+
+<ul>
+    {% for article in articles %}
+        <li>
+           #{{ article.pk }}{{ article.title }}
+           {{ article.pk }} | 
+           <a href="/board/{{ article.pk }}/">{{ article.title }</a>
+        </li>
+
+    {% endfor %}
+</ul>
+
+{% endblock content %}
+```
+for 다음에 왜 index가 아닐까? 게시글 5개일 경우, 0~4 순서가 되고 enumerate라 꺼내지 못함. for idx in enumerate(articles)가 안됨.
+꺼낼수있어도 데이터베이스 순서가 맞지 않음. 게시글의 id가 지워졌다가 없어지고 하면서 순서가  2, 8, 9, 10 이런 배열일 수도 있음. index적 접근이 성립되지 않는다.
+> <a href="{{ article.pk }}/">{{ article.title }</a>
+> / 앞에 없음 => 현재 URL 에서 뒤에 이어 붙임
+> http://127.0.0.1:8000/board/ + {{ article.pk }}/
+> <a href="/board/{{ article.pk }}/">{{ article.title }</a>
+> / 가 맨 앞에 있음 => 도메인(127.0.0.1:8000) 뒤에 붙음
+>     http://127.0.0.1:8000/ + board/{{ article.pk }}/
+- 아래의 방법이 더 안전함. 언제나 board/1/의 값을 완성. 위에는 경우에 따라서 동작하지 않을 수 있음.
+
+```html
+board > templates > board > detail.html
+<h1>{{ article.title }}</h1>
+
+<p>
+    {{ article.content }}
+</p>
+
+```
+# 프레임워크는 흐름!
+urls.py > views.py > html
+
+
