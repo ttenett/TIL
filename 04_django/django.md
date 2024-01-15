@@ -536,25 +536,26 @@ print(greeting)
 print(greeting)
 ```
 
-장고가 문법으로 지원을 해줌. 마스터 url에 힌트가 있음. Function Views에 2번을 자세히 보면, path함수 쓸 때 name='변수명' 이 적혀있다.
+장고가 문법으로 지원을 해줌. 마스터 url에 힌트가 있음. Function Views에 2번을 자세히 보면, path함수 쓸 때 name='변수명' 이 적혀있다. url을 변수로 만들때 변수명임.
 
 ```python
 board > urls.py
 from django.urls import path
 from . import views
 
+# URl을 쓸 일이 있으면, '<app_name>:<name>' 
 app_name = 'board'
 
 urlpatterns = [
 # Create
-    # board/new/ => 게시글 작성용 <form> 제공
+    # board/new/ => 게시글 작성용 <form> 제공 => 'board:new'
     path('new/', views.new, name='new'),
     # board/create/ => 게시글 DB에 저장
     path('create/', views.create, name='create'),
 # Read
     # board/ => 전체 게시글 목록 조회
     path('', views.index, name='index'),
-    # board/1/ => 특정(pk) 게시글 상세 조회
+    # board/1/ => 특정(pk) 게시글 상세 조회 => 'board:detail'
     path('<int:pk>/', views.detail, name='detail'),
 # Update
     # board/1/edit/ => 게시글 수정용 <form> 제공
@@ -566,6 +567,104 @@ urlpatterns = [
     path('<int:pk>/delete/', views.delete, name='delete'),
 ]
 ```
-from 함수들 밑에 app_name 추가,
+> from 함수들 밑에 app_name 추가,
 path 함수에 세번째 인자들을 준다. name='이름'
-그리고 # URl을 쓸 일이 있으면, '<app_name>:<name>' 
+> 장고에서 내부적으로 지원하는 URL 변수화 = '<app_name>:<name>' -> name은 변수명
+
+
+```html
+마스터 templates > base.html
+    <nav>
+        <ul>
+            <li>
+                <a href="{% url "board:index" &}">Home</a>
+            </li>
+            <li>
+                <a href="{% url "board:new" %}">New Article</a>
+            </li>
+        </ul>
+    </nav>
+```
+- herf 자리에 "/board/"를 "board:index"를 해야되는데 이게아니라 "url 자동완성 클릭한 뒤 "board:index"를 써줌. 
+이런식으로 html을 다 바꿔주면 됨.
+
+```html
+board > templates > board > index.html
+        <li>
+           (전) <a href="/board/{{ article.pk }}/">{{ article.title }}</a>
+           (후) <a href="{% url "board:detail" article.pk %}">{{ article.title }}</a>
+        </li>
+```
+비교해보면 article.pk에 해당하는게 url 함수에 없음. 근데 어떻게 숫자만드냐? "board:detail"뒤에 추가해줌. {% %} 안에 들어온 순간부터는 장고 템플릿(DTL)의 영역이라 알아서 해석해줌.
+- 여기서 중요한건  DTL안에 변수들사이에 쉼표를 쓰지 않도록 주의! DTL에는 쉼표가 존재하지 않음
+- article.pk를 쓰지않으면 No reverse Match에러가 남. detail은 variable 변수처리가 될건데 숫자항목 변수가 없다는 뜻. url에 문제가 있다는걸 인지해야함.
+여기까지의 html 구현 화면
+![앱이름변경시index.html]("C:\Users\yeonjeong\TIL\04_django\앱이름변경시index.html.png")
+(전)은 지우면 됨.
+
+detail에도 하드코딩된 코드들 바꿔주기
+```html
+board > templates > board > detail.html
+<div>
+    <a href="{% url "board:edit" article.pk %}">
+        <button>수정</button>
+    </a>
+</div>
+
+<div>
+    <a href="{% url "board:delete" article.pk %}">
+        <button onclick="return confirfm('ㄹㅇ삭제?')">삭제</button>
+    </a>
+</div>
+```
+
+헷갈리지 말 것!
+python - ㅇㅇ.ㅇㅇ => 구분자 "." 점
+웹/File - dir/dir/ => 구분자 "/" 슬래시
+django url - ㅇㅇ : ㅇㅇ => 구분자 ":" 콜론
+
+edit.html
+```html
+board > templates > board > edit.html
+<form action="{% url "board:update" article.pk %}" method="POST">
+```
+- form 의 action 이기때문에 update임.
+  
+new.html
+```html
+board > templates > board > new.html
+<form action="{% url "board:create" %}" method="POST">
+```
+
+views.py
+```python
+board > views.py
+def create(request):
+    article = Article()    
+    article.title = request.POST['title']
+    article.content = request.POST['content']
+    article.save()        
+    # 저장 후 상세보기로 redirect
+    return redirect('board:detail', article.pk)
+    return redirect(f'/board/{article.pk}/')
+
+def update(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.title = request.POST['title']
+    article.content = request.POST['content']
+    article.save()
+    article.pk
+    # 저장 후 상세보기로 redirect
+    return redirect('board:detail', article.pk)
+
+    # 삭제
+def delete(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.delete()
+    return redirect('board:index')
+
+```
+- redirect 변경해주고, ',' 있어야 함. 파이썬 세상이기 때문
+- 나머지 redirect 내용도 변경해주면 됨.
+- create / update 끝났을때, detail로 보내기
+- delete 끝났을때 index로 보내기.
