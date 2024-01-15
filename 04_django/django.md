@@ -212,7 +212,7 @@ board > views.py
 >> return이 없어 저장 후 화면이 에러는 나지만 DB에는 저장됨
 << 여기까지 실습2 완>>
 
-Create 는 끝. 이제 R파트 Read.
+# Create 는 끝. 이제 R파트 Read.
 접속많이하는 대표적인 게시판. 식물갤을 기준으로 게시판생성 생각해보기.
 1. 전체게시글 목록보기 
 2. 특정 게시글 상세보기
@@ -305,4 +305,267 @@ board > templates > board > detail.html
 # 프레임워크는 흐름!
 urls.py > views.py > html
 
+views.py로 돌아와서, create 함수를 끝낸 뒤에 index 함수를 실행하면 어떨까?
+지금까지 우리는 url request를 통해서만 index 함수를 실행하고 있음. ex) print(11)을 구하려면?
+urls.py 와 views.py를 같이 보면, path('', views.index),를 통해서만 views.py의 index가 실행됨.(board/)
+create함수에서 index 함수 실행하려면 위 url요청이 필요한 것.
+### 이때 장고함수 중 **redirect**라는 함수가 있다.
+=> 어떤 일이 끝난 후 강제로 페이지를 옮기는 것.
 
+```python
+board > views.py
+from django.shortcuts import render, redirect
+def create(request):
+    article = Article()
+    article.title = request.POST['title']
+    article.content = request.POST['content']
+    article.save()
+    # article.pk
+    # 저장 후 상세보기로 redirect
+    return redirect(f'/board/{article.pk}/')
+    # return redirect('/board/article.pk/') 결과값은 404 page not found
+
+```
+장고숏컷함수에 redirect 추가하고 return을 추가해주면
+=> 아티클 채우고 저장 후 /board/로 다시 요청을 보내게 만듬.
+redirect/board/(리스폰스)를 return(받은) 클라이언트(브라우저)는 자동으로 url의 index(/board/)요청이 일어남. 자동으로 index 페이지를 보게 됨.
+- 여기서 상세보기로 redirect시, article.pk가 article.save()다음에 오는 이유는 저장 후 일어나는 일이기 때문에.
+- 저장을 하는 순간에 id값이 생성됨. 앞에애들이 몇번까지 있는지 확인 후 결정됨. 
+- f스트링으로 article.pk도 넣어주면 됨 (숫자 녹여버리기). <int:pk>는 url에서 패턴 정의할때만 쓰는 특수기호.
+> 만약 저장을 Article.objects.create(title=request.POST['title'], content=request.POST['content']) 로 한다면 어떻게 redirect를 하나요?
+> 앞에 article = 로 변수를 받아주면 됨. 단순히 생성만 하는게 아니라 리턴이 있다. return 한게 article로 들어오니까 그걸 한게 pk다.
+
+- content에 여러줄을 넣어서 저장해도 한줄로 나옴. html 특성. 이걸 html에 넣는법
+##### 장고 특수문법
+```html
+<p>
+    <!--
+        <textarea>를 통해 엔터를 입력받은 경우 화면에서 <br>로 표시
+    -->
+    {{ article.content | linebreaksbr}}
+</p>
+```
+템플릿에서 **파이프 + 템플릿필터(linebreaksbr)** 적용이 됨
+
+
+```html
+02_MODEL > templates > base.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <nav>
+        <ul>
+            <li>
+                <a href="/board/">Home</a>
+            </li>
+            <li>
+                <a href="/board/new/">New Article</a>
+            </li>
+        </ul>
+    </nav>
+
+    {% block content %}{% endblock content %}
+</body>
+</html>
+```
+- nav바를 base.html에 추가. 시맨틱태그<nav> = <div>와 같음
+- 네비게이션바에 ul, li태그 씀. 순서없이 리스트 할거야. li태그안에 a태그 > 클릭했을때 이동해야 하니까. 예쁘게 나오는건 css에서 해야할 일.
+
+여기까지 R, 
+# CRUD 중 U 와 D 
+상세페이지 안에 보통 수정이 있는게 일반적임.
+> detail 안에 UI를 만들어야겠군.
+
+```html
+board > templates > board > detail.html
+extends base.html, block content
+<h1>{{ article.title }}</h1>
+
+<p>
+    <!--
+        <textarea> 를 통해 엔터를 입력받은 경우 화면에서 <br>로 표시
+    -->
+    {{ article.content | linebreaksbr }}
+</p>
+
+
+<div>
+        <button>수정</button>
+</div>
+
+<div>
+        <button>삭제</button>
+</div>
+```
+- div 안에 button 태그 사용. 수정과 삭제. 버튼만 만들어놓으면 의미가 없음. views.py에 함수로 만들어야 함. url과 함께 띄우고 작성.
+
+```python
+board > views.py
+# 수정
+
+# 삭제
+def delete(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.delete()
+    return redirect('/board/')
+```
+- 삭제 : pk를 알아야 함. 그래서 request 뒤에 pk 써줌.
+- 그러고 변수할당해서 삭제.
+
+
+```python
+board > urls.py
+# Delete
+    # board/1/delete = > 특정(pk)게시글 삭제
+    path('<int:pk>/delete/', views.delete),
+```
+삭제버튼 눌렀을때 실행되어야 할 html도 작성
+
+```html
+board > templates > board > detail.html
+<div>
+    <a href="/board/{{ article.pk }}/edit/">
+        <button>수정</button>
+    </a>
+</div>
+
+<div>
+    <a href="/board/{{ article.pk }}/delete/">
+        <button onclick="return confirfm('ㄹㅇ삭제?')">삭제</button>
+    </a>
+</div>
+```
+- 삭제: <a>태그 안에 <btuuon>태그를 넣어야 함. 쉽게 알파벳순으로. herf 목적지를 정해줘야 함. html 자체가 article 쓰고 있기 때문에.
+- <button onclick>: 자바스크립트 속성에 가까움. 클릭하면 이라는 뜻.
+
+! 삭제 클릭 후 마지막 확인(경고)메시지
+- 삭제 후 되돌릴 수 없기때문에 확인창을 띄움. 진짜 삭제하시겠습니까? 웹 페이지로 뜨는게 아니고 브라우저의 기능임. 장고의 기능이 X. 브라우저를 조작하기위해 태어난 언어가 자바스크립트.
+- 홈페이지 > 개발자도구F12 > 콘솔 탭에서 confirm(’??’) 하면 창이 띄워짐. 여기서 확인 > true, 취소 > false 를 리턴해주는 함수.
+- 웹 개발할때 자바스크립트를 빼놓을 수 없음.
+
+- 수정: html 중간에 article.pk는 특정게시글을 잡아서 진행해야 하므로. urls.py , views.py 작성.
+  
+```python
+board > urls.py
+# Update
+    # board/1/edit/ => 게시글 수정용 <form> 제공
+    path('<int:pk>/edit/', views.edit),
+    # board/1/update/ => 수정된 게시글을 DB에 저장
+    path('<int:pk>/update/', views.update),
+```
+
+```python
+board > views.py
+# 수정
+def edit(request, pk):
+    article = Article.objects.get(pk=pk)
+    return render(request, 'board/edit.html/', {
+        'article' = article,
+    })
+
+def update(request, pk):
+    article = Article.objects.get(pk=pk)
+    article.title = request.POST['title']
+    article.content = request.POST['content']
+    article.save()
+    # 저장 후 상세보기로 redirect
+    return redirect(f'/board/{article.pk}/')
+```
+- 사용자가 데이터를 다시작성해서 넘겨줌. title과 content내용물을 만들어서 세이브함. 수정코드는 어떻게 되어있을까? 새로운 인스턴스를 만드는게 아니라 기존 인스턴스를 찾아와야 함.
+- 수정 edit의 pk가 놀고있음. article = Article.objects.get(pk=pk) 추가함. 아티클을 하나 잡음.또 노는애 생김. article 변수가 놈. 그래서 리턴 렌더 context에 담아서 보냄.
+- new는 content 없이 그냥 리턴 넘겼는데, edit은 뭔가 같이 담아서 보냄. 
+일단 edit.html 작성
+```html
+templates > board > edit.html
+익스텐즈, 블럭, new.html에 있는 내용 그대로 복사해서 가져오기.
+<h1>Edit Article</h1>
+
+<form action="/board/{{ article.pk }}/update/" method="POST">
+    {% csrf_token %}
+    <div>
+        <label for="title">제목: </label>
+        <input type="text" id="title" name='title' value="{{ article.title }}">
+    </div>
+
+    <div>
+        <label for="content">내용: </label>
+        <textarea name="content" id="content" cols="30" rows="10">{{ article.content }}</textarea>
+    </div>
+
+    <div>
+        <input type="submit">
+    </div>
+
+</form>
+```
+- form action 경로 수정부터 하기. 지금 수정하려는 게시글의 아이디값. /board/1/edit/ 
+- views.py의 edit에서 리턴 렌더에 context에 article을 넣은 이유: 특정 게시글에서 수정할것이므로 edit.html의 form action에 숫자가 하나 필요하고{{ article.pk }}, 숫자를 위해서 넣어 준 것.
+- 그런데 왜 굳이 번잡스럽게 pk를 넘겨서 그걸로 게시글을 찾아서(pk=pk) 찾은 게시글을 가지고 다시 pk를 edit.html에서 뽑고 있을까? 
+  - 바로 들어가보면 됨 /board/1/edit/ 가보면, 편집 화면인데 아무것도 없이 공란임. 편집해야하는데 기존 내용이 없음. 기존내용이 article안에 있기 떄문에 이 내용을 뿌려줘야 해서 그런것이다.
+
+### 제목, 내용 수정방법 - 위 edit.html 에 내용넣음
+- 제목: edit.html에서 input 태그에 내용물을 미리 채워넣는 법: value => input 태그 name 옆에 value="{{ article.title }}" 추가.
+- 내용: 밑에는 textarea 태그에는? 제목과 조금 다름. html 특성으로 인해 엔터를 치면 그대로 앞의 공백이 반영되어 나오기 때문에 오프닝태그와 클로징태그 안에 {{ article.content }}적어주면 됨. 이 부분은 엔터를 치지 않는것을 추천.
+
+# 앱 이름 변경 이슈에서는 어떻게 해야하는가?
+board/urls.py 에서 urlpatterns를 보기
+가정) 상사가 앱 이름을 board 말고, 메타버스로 바꾸자 라고 함. 이럴때 어떻게 해야할까?
+> 마스터 url에 가서 board 를 바꿔주면 되긴 하는데 뭐가 추가적으로 문젤까?
+> html안에 있는 form action이나 href, views 의 렌더값에도 board가 있음. 퇴사가 답인데 퇴사를 못할 경우? 어떤 해결책을 쓰면 괜찮을까?
+> url을 변수에 담아서 관리하자.
+```python
+print('hi')
+print('hi')
+print('hi')
+print('hi')
+print('hi')
+여기서 hi를 hello로 변경해야하는것 > 
+
+greeting = 'hello'
+
+print(greeting)
+print(greeting)
+print(greeting)
+print(greeting)
+print(greeting)
+```
+
+장고가 문법으로 지원을 해줌. 마스터 url에 힌트가 있음. Function Views에 2번을 자세히 보면, path함수 쓸 때 name='변수명' 이 적혀있다.
+
+```python
+board > urls.py
+from django.urls import path
+from . import views
+
+app_name = 'board'
+
+urlpatterns = [
+# Create
+    # board/new/ => 게시글 작성용 <form> 제공
+    path('new/', views.new, name='new'),
+    # board/create/ => 게시글 DB에 저장
+    path('create/', views.create, name='create'),
+# Read
+    # board/ => 전체 게시글 목록 조회
+    path('', views.index, name='index'),
+    # board/1/ => 특정(pk) 게시글 상세 조회
+    path('<int:pk>/', views.detail, name='detail'),
+# Update
+    # board/1/edit/ => 게시글 수정용 <form> 제공
+    path('<int:pk>/edit/', views.edit, name='edit'),
+    # board/1/update/ => 수정된 게시글을 DB에 저장
+    path('<int:pk>/update/', views.update, name='update'),
+# Delete
+    # board/1/delete/
+    path('<int:pk>/delete/', views.delete, name='delete'),
+]
+```
+from 함수들 밑에 app_name 추가,
+path 함수에 세번째 인자들을 준다. name='이름'
+그리고 # URl을 쓸 일이 있으면, '<app_name>:<name>' 
