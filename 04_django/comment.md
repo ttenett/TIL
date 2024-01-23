@@ -247,3 +247,5 @@ def create_comment(request, pk): # board/1/comments/create/
 - 저장전에 comment 인스턴스에 form을 할당했기 때문
 
  - form = ArticleForm(instance=article) 이 안되는 이유: ArticleForm에 article에 대한 내용. articleForm이 기존 존재하는 article과 연관이 있다(instance=article)
+
+1-16-9-19 1:11:16
