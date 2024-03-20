@@ -93,37 +93,37 @@ mkdir sample && cd sample
 - 파일 이동 및 이름변경
 ```bash
 # 파일 이동
-ubuntu@ip-172-31-15-212:~/sample$ cd ~
-ubuntu@ip-172-31-15-212:~$ mkdir sample2
-ubuntu@ip-172-31-15-212:~$ ls sample
+ubuntu@ip:~/sample$ cd ~
+ubuntu@ip:~$ mkdir sample2
+ubuntu@ip:~$ ls sample
 find_manual.txt  line1.txt  line2.txt  newfile
-ubuntu@ip-172-31-15-212:~$ ls sample2
-ubuntu@ip-172-31-15-212:~$
-ubuntu@ip-172-31-15-212:~$ mv sample/newfile sample2/newfile
-ubuntu@ip-172-31-15-212:~$ ls sample2
+ubuntu@ip:~$ ls sample2
+ubuntu@ip:~$
+ubuntu@ip:~$ mv sample/newfile sample2/newfile
+ubuntu@ip:~$ ls sample2
 newfile
-ubuntu@ip-172-31-15-212:~$ ls sample
+ubuntu@ip:~$ ls sample
 find_manual.txt  line1.txt  line2.txt
 
 # 파일명 변경
-ubuntu@ip-172-31-15-212:~$ mv sample2/newfile sample2/gamja
-ubuntu@ip-172-31-15-212:~$ ls sample2
+ubuntu@ip:~$ mv sample2/newfile sample2/gamja
+ubuntu@ip:~$ ls sample2
 gamja
 ```
 
 ### find
 ```bash
-ubuntu@ip-172-31-15-212:~$ find . -name 'sam*'
+ubuntu@ip:~$ find . -name 'sam*'
 ./sample2
 ./sample
-ubuntu@ip-172-31-15-212:~$ find . -name 'find*'
+ubuntu@ip:~$ find . -name 'find*'
 ./sample/find_manual.txt
-ubuntu@ip-172-31-15-212:~$ find . -name '*in*'
+ubuntu@ip:~$ find . -name '*in*'
 ./.sudo_as_admin_successful
 ./sample/line2.txt
 ./sample/line1.txt
 ./sample/find_manual.txt
-ubuntu@ip-172-31-15-212:~$
+ubuntu@ip:~$
 ```
 
 ### which 나중에 하겠음.
@@ -133,20 +133,20 @@ ubuntu@ip-172-31-15-212:~$
 - find는 파일 이름을 찾음.
 ```bash
 # line 이 들어간 내용 다찾음
-ubuntu@ip-172-31-15-212:~$ grep -rn "line"
+ubuntu@ip:~$ grep -rn "line"
 
 # 알파벳 tion으로 끝나는거 다찾음
-ubuntu@ip-172-31-15-212:~$ grep -rn "[a-zA-Z]\+tion$" .
+ubuntu@ip:~$ grep -rn "[a-zA-Z]\+tion$" .
 ```
 
 ### uname 
 ```bash
 # 현재시스템 정보
-ubuntu@ip-172-31-15-212:~$ uname
+ubuntu@ip:~$ uname
 Linux
 # all 상세정보
-ubuntu@ip-172-31-15-212:~$ uname -a
-Linux ip-172-31-15-212 5.15.0-1055-aws #60~20.04.1-Ubuntu SMP Thu Feb 22 15:49:52 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
+ubuntu@ip:~$ uname -a
+Linux ip 5.15.0-1055-aws #60~20.04.1-Ubuntu SMP Thu Feb 22 15:49:52 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
 ### ps - 프로세스 확인 ⭐
@@ -170,7 +170,7 @@ ps보다는 pid를 이용해서 제어를 함.
 
 ```bash
 # ps -aux가 들어있는 결과 중에 worker를 찾아줌.
-ubuntu@ip-172-31-15-212:~$ ps -aux | grep worker
+ubuntu@ip:~$ ps -aux | grep worker
 root           7  0.0  0.0      0     0 ?        I    09:09   0:00 [worker/0:0-events]
 root           8  0.0  0.0      0     0 ?        I<   09:09   0:00 [worker/0:0H-kblockd]
 root          24  0.0  0.0      0     0 ?        I<   09:09   0:00 [worker/1:0H-events_highpri]
@@ -198,15 +198,15 @@ ubuntu      2294  0.0  0.0   8168   720 pts/1    S+   13:23   0:00 grep --color=
 - kill -15 PID : 이거 하던거 작업 마저하고ㅁ 끌게 시그널 우리는 안쓸것임. 프로그램 개발할게 아니기 때문에.
 
 ```bash
-ubuntu@ip-172-31-15-212:~$ sleep 1000 &
+ubuntu@ip:~$ sleep 1000 &
 [1] 2297
-ubuntu@ip-172-31-15-212:~$ ps
+ubuntu@ip:~$ ps
     PID TTY          TIME CMD
    2275 pts/1    00:00:00 bash
    2297 pts/1    00:00:00 sleep
    2298 pts/1    00:00:00 ps
-ubuntu@ip-172-31-15-212:~$ kill -9 2297
-ubuntu@ip-172-31-15-212:~$ ps
+ubuntu@ip:~$ kill -9 2297
+ubuntu@ip:~$ ps
     PID TTY          TIME CMD
    2275 pts/1    00:00:00 bash
    2301 pts/1    00:00:00 ps
