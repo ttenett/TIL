@@ -43,5 +43,5 @@
    1) 가장 많이 사용하는 표준 입출력 함수로, <studio.h> 헤더파일에 정의
    2) 
 
-- #define VALUE1 1 : 매크로, 앞으로 나오는 VALUE1 값은 모두 1 
+- #define VALUE1 1 : 매크로, 앞으로 나오는 VALUE1 값은 모두 1
    
