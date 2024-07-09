@@ -6,3 +6,4 @@
 - public static void main 부터 읽으면 됨. 프로그램 시작점.
 - 인자로 들어가는것은 무조건 지역변수.
 - println : print + \n
+
