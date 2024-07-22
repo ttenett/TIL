@@ -56,3 +56,90 @@ DROP - 건물 부셔버림. 구조 아예삭제
 Truncate - 구조는 그대로두고 초기화. 이사, 새집처럼 만듬
 
 Delete - 그 안의 내용을 삭제, 안에있는거 버림. (설정값이나 뭐 이런건 남아있음)
+
+### DML(Data Management Language)
+
+1. DML - INSTER UPDATE DELETE SELECT
+
+INSERT INTO 테이블명 ( 컬럼명 a, b, c)
+
+values (집어넣을 내용’a’, ‘b’, ‘c’); 값은 홑따옴표 꼭 붙여주기 - 문자는 꼭 쓰고, 숫자는 있없상관무
+
+PRIMARY KEY : 기본값
+
+UPDATE 테이블명 
+
+SET a속성=’바꿀값’ ,  b속성=’2’ 
+
+WHERE 조건절
+
+DELETE FROM 테이블명 
+
+WHERE 삭제할조건
+
+- DROP 전부폭파
+- Truncate 집 초기화
+- delete 집안에 물건들만 지우는것
+
+BETWEEN  1 AND 2 : 범위 지정할때
+
+WHERE 잔고 >= 1 AND 잔고 <= 2 도 가능
+
+LIKE 연산 : 문자열 연
+
+% 와일드문자가 이씅면 LIKE를 써야함. 아무값이나 쓸 수 있음.
+
+% : 있어도 되고 없어도되고 많이와도 되고 조금와도 되고 상관없음. 
+
+_  언더바 : 무조건 한글자 들어가야함.
+
+1) SELECT 필드, * 
+
+DISTINCT ~~
+
+FROM 테이블명
+
+2) WHERE
+
+AND/OR
+
+3) GROUP BY 속성
+
+HAVING 조건 집계함수-sum, avg 평균, count갯수 min max / sum(영어) >= 80
+
+집계함수는 SELECT 절이나 having절에서만 나옴.
+
+ORDER BY 정렬 ASC 오름차순 DESC 내림차순
+
+SELECT DISTINCT 검색어 FROM 테이블명  : 중복제거
+
+COUNT는 NULL값을 세지 않음. *을 한다면 NULL도 셈.
+
+집합함수 UNION :  중복제거
+
+UNION ALL: 중복 신경안쓰고 테이블 다 합침
+
+INTERSECT : 교집합, 둘 다 공통으로 들고있는거.
+
+외부조인 Left Outer Join : 왼쪽기준 정렬 Right Outer Join 오른쪽 기준 정렬
+
+기준쪽에 있는건 다나오고, 아닌쪽꺼에만 있는건 NULL
+
+Full Outer Join은 모두 다 넣는거 = 레프트,라이트조인한 후 유니온한거
+
+ INNER Join 필드가 일치하는 레코드만 결합하는 조인일때
+
+합친후 테이블명.필드명
+
+- SELECT * FROM A, B 보통 INNER 조인인데, 아랫줄에 ON 어떤필드 어떤필드 같아야한다 = 이너조인, / 그냥 콤마를 쓰면 카티시안 곱이 됨.
+- CROSS JOIN = 카티시안 곱 = 필드(열)수는 더하기, 레코드(행)수는 곱하기
+
+AS = Alias  열이름을 변경함. 필드.
+
+WHERE 필드명 IN (’찾을값’,’찾을값’) : 괄호안에 포함 된 것 갖고와라
+
+NOT IN 포함안된거 
+
+기본급의 최댓값 구하기 : MAX(기본급) AS 최댓값
+
+ANY :
