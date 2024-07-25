@@ -142,4 +142,25 @@ NOT IN 포함안된거
 
 기본급의 최댓값 구하기 : MAX(기본급) AS 최댓값
 
-ANY :
+다중행연산자 IN NOT ANY : 하나라도 포함, ALL : 모두 포함 
+
+WHERE 조건 안의 () 내용이 단일값이면 단일행연산자 > < 가능, 두개이상이면 IN 같은 다중행연산자 사용.
+
+- WHERE EXISTS = 행이 있는지만 확인.  IN은 (값들) 하나하나 다 맞는지 비교.
+- WHERE 다음 속성명이 없을때 사용. 속성명 있으면 IN 사용가능., NOT EXISTS도 있음.  EXISTS는 키값 참조로 엮어줘야함. 테이블1.필드명=테이블2.필드명
+
+GROUP BY는 해당 필드값만 합칠 수 있음. 문자는 못합치니까 그래서 avg 같은 집계함수만 올수있음.
+
+### DCL (Data Control Language)
+
+1. DCL - GRANT TO권한줌 REVOKE FROM권한뺏음 COMMIT, ROLLBACK, SAVEPOINT
+
+커밋(반영) 롤백(원복)은 트랜잭션 특성에 더 자주나오는 개념
+
+GRANT SELECT, INSERT, DELECT ON 테이블명 TO 사용자
+
+모든 사용자 PUBLIC
+
+INSERT 삽입, UPDATE 갱신, DELETE 삭제, SELECT 검색,조회
+
+WITH GRANT OPTION :   GRANT 권한을 나눠줄수있음
